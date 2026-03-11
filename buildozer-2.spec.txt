@@ -1,0 +1,135 @@
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║          buildozer.spec — UDP Proxy Analyzer v5                        ║
+# ║                                                                        ║
+# ║  QUICK BUILD GUIDE:                                                    ║
+# ║  ──────────────────                                                    ║
+# ║  1.  pip install buildozer cython                                      ║
+# ║  2.  Place this file + proxy_analyzer_v5.py in same folder             ║
+# ║  3.  buildozer -v android debug          ← first build (~30 min)       ║
+# ║  4.  buildozer -v android debug deploy run  ← deploy to USB device     ║
+# ║                                                                        ║
+# ║  On Ubuntu/Debian first run:                                           ║
+# ║    sudo apt install -y git zip unzip openjdk-17-jdk autoconf           ║
+# ║                        libtool pkg-config zlib1g-dev libncurses5-dev   ║
+# ║                        libncursesw5-dev libtinfo5 cmake libffi-dev     ║
+# ║                        libssl-dev                                      ║
+# ║                                                                        ║
+# ║  If pycryptodome is wanted on device:                                  ║
+# ║    Add "pycryptodome" to requirements below (already done)             ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
+
+[app]
+
+# ── Identity ─────────────────────────────────────────────────────────────────
+title           = UDP Proxy Analyzer
+package.name    = udpproxyanalyzer
+package.domain  = com.yourname
+
+# ── Source ────────────────────────────────────────────────────────────────────
+# Entry point — must be in the same directory as this spec file
+source.dir      = .
+source.include_exts = py,png,jpg,kv,atlas,json,txt
+
+# Entry point Python file (without .py)
+source.main      = proxy_analyzer_v5
+
+# ── Version ───────────────────────────────────────────────────────────────────
+version         = 5.0.0
+
+# ── Requirements ─────────────────────────────────────────────────────────────
+# Format: package==version  OR just package  (uses latest)
+# • kivy        — UI framework
+# • kivymd      — Material Design widgets
+# • pycryptodome — AES / ChaCha20 / RC4 (optional but recommended)
+# • hostpython3 — needed by buildozer for Python compilation step
+requirements = python3,
+    kivy==2.3.0,
+    kivymd==1.2.0,
+    pycryptodome,
+    hostpython3
+
+# ── Orientation ───────────────────────────────────────────────────────────────
+orientation = portrait
+
+# ── Icon & splash ─────────────────────────────────────────────────────────────
+# Replace with your own 512×512 PNG and 1024×500 PNG
+#icon.filename     = %(source.dir)s/icon.png
+#presplash.filename = %(source.dir)s/presplash.png
+
+# ── Android permissions ───────────────────────────────────────────────────────
+# INTERNET       — UDP socket I/O
+# ACCESS_NETWORK_STATE — check connectivity
+# WRITE_EXTERNAL_STORAGE — save session_log.txt  (Android ≤ 9)
+# READ_EXTERNAL_STORAGE  — read settings file
+android.permissions = INTERNET,
+    ACCESS_NETWORK_STATE,
+    WRITE_EXTERNAL_STORAGE,
+    READ_EXTERNAL_STORAGE
+
+# ── Android API levels ────────────────────────────────────────────────────────
+android.minapi      = 26          # Android 8.0  (minimum safe for KivyMD)
+android.api         = 34          # Android 14   (target — required by Google Play)
+android.ndk         = 25b         # NDK version  (buildozer will download)
+android.ndk_api     = 26
+
+# ── Architecture ──────────────────────────────────────────────────────────────
+# arm64-v8a  : modern 64-bit phones (recommended)
+# armeabi-v7a: older 32-bit phones
+# x86_64     : emulator
+android.archs = arm64-v8a, armeabi-v7a
+
+# ── Build type ────────────────────────────────────────────────────────────────
+# "apk"  → unsigned APK  (default for debug)
+# "aab"  → Android App Bundle (required for Google Play release)
+android.release_artifact = apk
+
+# ── Gradle / build-tools ──────────────────────────────────────────────────────
+android.gradle_dependencies =
+android.enable_androidx = True
+android.accept_sdk_license = True
+
+# ── App features ──────────────────────────────────────────────────────────────
+# fullscreen = 0 keeps the status bar visible (recommended for networking apps)
+fullscreen = 0
+
+# ── Logcat filter (useful during development) ─────────────────────────────────
+android.logcat_filters = *:S python:D ProxyApp:D
+
+# ── p4a (Python for Android) branch ──────────────────────────────────────────
+# "develop" gives latest fixes; pin to a tag for reproducible builds
+p4a.branch = develop
+
+# Uncomment to use a specific p4a fork / local path:
+#p4a.source_dir = /path/to/python-for-android
+
+# ── Extra Java source (leave empty unless you add Java/Kotlin code) ───────────
+# android.add_src =
+
+# ── ProGuard (obfuscation — disable for debug, enable for release) ────────────
+# android.proguard = True
+
+# ── Signing (required for release APK / Google Play) ─────────────────────────
+# Generate keystore:
+#   keytool -genkey -v -keystore my-release-key.keystore \
+#           -alias mykey -keyalg RSA -keysize 2048 -validity 10000
+#
+# Then uncomment and fill:
+#android.keystore          = my-release-key.keystore
+#android.keystore_password = YOUR_KEYSTORE_PASS
+#android.keyalias          = mykey
+#android.keyalias_password = YOUR_KEY_PASS
+
+# ── iOS (not configured — Android only) ──────────────────────────────────────
+[buildozer]
+
+# Buildozer working directory (cached SDK / NDK downloads)
+build_dir = .buildozer
+
+# Where the final APK / AAB lands
+bin_dir   = ./bin
+
+# Verbosity: 1 = normal, 2 = verbose
+log_level = 2
+
+# Warn before cleaning
+warn_on_root = 1
